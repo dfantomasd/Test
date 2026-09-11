@@ -36,8 +36,8 @@ The original process required repeated manual interaction with the planning syst
 
 ```text
 src/
-  flight_task_menu.py      # desktop launcher and batch workflow
-  flight_task_worker.py    # document capture, Excel/PDF processing and assembly
+  flight_task_menu_v31.py      # desktop launcher and batch workflow
+  flight_task_worker_v31.py    # sanitized worker: Windows UI, Excel, PDF, airport logic
 requirements.txt
 .gitignore
 README.md
@@ -45,7 +45,9 @@ README.md
 
 ## Notes
 
-This code depends on a specific Windows desktop environment and a proprietary airline operations application. It is not intended to run out of the box outside that environment. The repository is published to demonstrate the automation architecture, Windows UI automation, document processing, error handling and workflow design.
+This code depends on a specific Windows desktop environment and a proprietary airline operations application. It is not intended to run out of the box outside that environment. The repository is published to demonstrate the automation architecture, Windows UI automation, Excel COM integration, document processing, route logic, error handling and workflow design.
+
+The worker file is deliberately reduced compared with the production build. Company-specific menu mappings, internal templates, document layouts, real operational records and network paths are not published.
 
 ## Privacy / sanitization
 
