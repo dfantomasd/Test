@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+*.json
+_last_result.json
+flight_task_config.json
+.venv/
+venv/
+dist/
+build/
+*.pdf
+*.xlsx
+*.xls
+*.docx
+*.csv
