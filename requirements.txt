@@ -1,0 +1,6 @@
+pywin32
+pyautogui
+Pillow
+pypdf
+rapidfuzz
+airportsdata
