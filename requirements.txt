@@ -1,6 +1,6 @@
-pywin32
-pyautogui
-Pillow
-pypdf
-rapidfuzz
 airportsdata
+pypdf
+pywin32
+pywinauto
+rapidfuzz
+Unidecode
