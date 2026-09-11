@@ -108,9 +108,32 @@ def resolve_airport(
     search_strings: list[str],
     metadata: list[tuple[str, ...]],
 ) -> Optional[AirportMatch]:
+    """Resolve an airport while preferring deterministic exact/contained matches.
+
+    Fuzzy matching is used only as a fallback. This prevents short or distinctive
+    airport names from being outranked by unrelated records with a coincidental
+    fuzzy score.
+    """
     query = normalize_airport_search_text(point)
     if not query:
         return None
+
+    # Exact normalized code/name/city match first.
+    for index, candidate in enumerate(search_strings):
+        if candidate == query:
+            iata, icao, city, name, country = metadata[index]
+            return AirportMatch(point, iata, icao, city, name, country, 100.0)
+
+    # Prefer a whole query contained in a longer airport name/city representation.
+    contained_matches: list[tuple[int, int]] = []
+    for index, candidate in enumerate(search_strings):
+        if query in candidate:
+            contained_matches.append((len(candidate), index))
+
+    if contained_matches:
+        _, index = min(contained_matches)
+        iata, icao, city, name, country = metadata[index]
+        return AirportMatch(point, iata, icao, city, name, country, 99.0)
 
     match = process.extractOne(query, search_strings, scorer=fuzz.WRatio)
     if not match:
