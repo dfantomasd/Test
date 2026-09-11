@@ -1,58 +1,137 @@
 # Flight Task Automation
 
-Windows desktop automation for assembling flight-task document packages from an airline operations application and Microsoft Excel.
+Production-oriented Windows desktop automation for preparing airline flight-task document packages.
 
-This portfolio project was developed to automate a real operational workflow at **Nordwind Airlines**. The public repository is a **sanitized portfolio snapshot**: company templates, real flight documents, operational data, internal paths, and other non-public materials are intentionally excluded.
+> Portfolio snapshot of a tool developed to support a real operational workflow while working with **Nordwind Airlines**. This repository is personal portfolio material and is **not an official Nordwind Airlines product or repository**. Proprietary templates, operational records, credentials, internal paths and company-specific mappings are intentionally excluded.
 
-## What it automates
+## The problem
 
-- launches document-generation actions in the airline operations desktop application;
-- detects and controls the relevant Windows application dialogs;
-- attaches to Excel workbooks opened by the source application;
-- exports required sheets to PDF;
-- assembles several documents into one final PDF package;
-- handles domestic and international routing logic;
-- resolves airports and IATA codes using `airportsdata` and fuzzy matching;
-- supports single-flight and batch processing;
-- keeps the launcher open for repeated runs;
-- cleans temporary files and closes generated Excel workbooks after processing.
+Preparing flight-task packages required repeated manual work across an airline operations desktop application, Microsoft Excel and PDF documents. The workflow involved opening the correct flight, triggering several document actions, handling Excel workbooks, exporting pages, assembling the final package and repeating the same sequence for multiple flights.
 
-## Why I built it
+The project was built to make that process more consistent and to reduce repetitive operator actions.
 
-The original process required repeated manual interaction with the planning system, Excel, document windows and PDF files. The goal was to reduce repetitive work, lower the chance of missed documents, and make package generation more consistent.
+## What the automation does
+
+1. Finds and focuses the airline operations application on Windows.
+2. Drives desktop UI actions with `pywinauto` / Win32 automation.
+3. Connects to Excel through COM automation.
+4. Extracts route and flight metadata.
+5. Resolves airport names and IATA/ICAO codes with fuzzy matching.
+6. Applies domestic/international routing logic.
+7. Exports required Excel sheets to PDF.
+8. Merges validated document parts into one final PDF package.
+9. Supports single-flight and batch processing.
+10. Writes a small result payload and cleans temporary resources.
+
+## Workflow
+
+```text
+Operator
+   |
+   v
+Flight Task launcher
+   |
+   v
+Airline desktop application ----> active flight / route
+   |
+   v
+Excel workbooks via COM
+   |
+   +--> metadata parsing
+   +--> airport / IATA resolution
+   +--> route-specific validation
+   +--> PDF export
+   |
+   v
+PDF assembly
+   |
+   v
+Final flight-task package
+```
+
+More detail: [`docs/architecture.md`](docs/architecture.md)
 
 ## Tech stack
 
 - Python 3
+- Tkinter
 - `pywinauto`
-- Windows API / `pywin32`
-- Excel COM automation
+- Win32 / `pywin32`
+- Microsoft Excel COM automation
 - `pypdf`
 - `airportsdata`
 - `rapidfuzz`
-- Tkinter
+- `Unidecode`
 
 ## Repository structure
 
 ```text
-src/
-  flight_task_menu_v31.py      # desktop launcher and batch workflow
-  flight_task_worker_v31.py    # sanitized worker: Windows UI, Excel, PDF, airport logic
-requirements.txt
-.gitignore
-README.md
+.
+├── src/
+│   ├── launcher.py       # desktop launcher and batch orchestration
+│   └── worker.py         # sanitized automation / Excel / PDF / route logic
+├── docs/
+│   └── architecture.md   # architecture and design decisions
+├── config.example.json
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
 
-## Notes
+## What this project demonstrates
 
-This code depends on a specific Windows desktop environment and a proprietary airline operations application. It is not intended to run out of the box outside that environment. The repository is published to demonstrate the automation architecture, Windows UI automation, Excel COM integration, document processing, route logic, error handling and workflow design.
+This is not a tutorial project. It demonstrates integration work around a real desktop workflow:
 
-The worker file is deliberately reduced compared with the production build. Company-specific menu mappings, internal templates, document layouts, real operational records and network paths are not published.
+- Windows UI automation where no convenient public API is available;
+- orchestration of several external applications;
+- Excel automation through COM;
+- defensive handling of windows, dialogs and generated files;
+- fuzzy matching of airport data;
+- branching business logic for different route types;
+- PDF generation and package assembly;
+- temporary-file cleanup and repeatable batch execution;
+- sanitizing a production-oriented project for a public portfolio.
 
-## Privacy / sanitization
+## Public snapshot limitations
 
-The public version does **not** include real passenger or crew data, company documents, internal Excel templates, network shares, credentials, emails, or production logs.
+The production workflow depends on an authorized Windows environment and a proprietary airline operations application. The public code therefore cannot reproduce the complete production process outside that environment.
+
+The following are deliberately not published:
+
+- company document templates;
+- real crew, passenger or flight records;
+- internal network paths and shares;
+- proprietary menu/document mappings;
+- credentials, email addresses and production logs;
+- confidential operational rules that are not necessary to demonstrate the engineering approach.
+
+Where production-specific behavior was removed, the public code keeps representative integration points so the architecture remains understandable.
+
+## Running the portfolio snapshot
+
+The source is intended primarily for code review. On Windows, install dependencies with:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Then launch:
+
+```bash
+python src/launcher.py
+```
+
+Without the authorized airline desktop environment, the worker will stop at the integration boundary rather than attempting to reproduce proprietary behavior.
+
+## Design priorities
+
+- Fail visibly instead of silently producing an incomplete document package.
+- Keep temporary outputs isolated until the final PDF is ready.
+- Avoid saving changes back into source Excel workbooks.
+- Separate launcher/orchestration concerns from document-processing logic.
+- Keep the public repository free from operational data and secrets.
 
 ## Author
 
-Dmitry Simutin — Python / AI automation portfolio project.
+**Dmitry Simutin**  
+Python / automation portfolio project
