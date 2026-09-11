@@ -9,6 +9,9 @@ flight_task_config.json
 venv/
 dist/
 build/
+demo_output/
+.pytest_cache/
+.ruff_cache/
 *.pdf
 *.xlsx
 *.xls
