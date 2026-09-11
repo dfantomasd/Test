@@ -10,7 +10,7 @@ A production-oriented Windows automation project that coordinates a proprietary 
 
 This is more than a script that clicks buttons. The application has to understand the current operational context, collect data from several sources, normalize imperfect route data, make decisions based on route type, validate the generated document set and recover cleanly when an external application behaves unexpectedly.
 
-The current production approach is best described as **intelligent process automation** rather than an AI-powered product. I deliberately do not label deterministic automation as “AI”. The architecture, however, is designed so that an AI layer can be added where probabilistic reasoning actually provides value.
+The current production approach is best described as **intelligent process automation** rather than an AI-powered product. Deterministic rules remain the source of truth for operationally important actions, while the architecture leaves room for an AI assistance layer where probabilistic reasoning is actually useful.
 
 ## The problem
 
@@ -74,11 +74,11 @@ More detail: [`docs/architecture.md`](docs/architecture.md)
 This is a Windows-specific desktop automation project.
 
 - **OS:** Windows 10 or Windows 11, 64-bit
-- **Python:** **3.11.x recommended**
+- **Python:** **3.12.x recommended and used for the current working build**
 - **Microsoft Excel:** desktop version required for COM automation
 - **Target airline desktop application:** required only for the real production workflow
 
-Python 3.11 is the recommended portfolio/runtime version because it is a conservative choice for Windows UI automation and COM-based integrations. Newer Python versions may also work, but should be validated against `pywin32` and `pywinauto` before production use.
+Python 3.12 is the preferred runtime for this repository. Other versions may work, but they are not presented here as verified production targets.
 
 > `tkinter` is part of the standard Windows Python installation and is not installed from `requirements.txt`.
 
@@ -98,11 +98,17 @@ Activate it on Windows PowerShell:
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install the Python dependencies:
+Install dependencies:
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+```
+
+Run environment diagnostics before first use:
+
+```bash
+python src/diagnostics.py
 ```
 
 Run the portfolio launcher:
@@ -111,11 +117,37 @@ Run the portfolio launcher:
 python src/launcher.py
 ```
 
-The public repository cannot reproduce the complete airline workflow because the production version depends on an authorized proprietary desktop environment. Outside that environment, the code is primarily intended for architecture and code review.
+## Public demo mode
+
+A sanitized demo is included so the public repository can demonstrate route parsing, airport resolution and PDF assembly without company systems or company data:
+
+```bash
+python src/demo.py
+```
+
+The demo uses synthetic blank PDF documents and writes its output to `demo_output/`.
+
+## Development setup
+
+Install development dependencies:
+
+```bash
+python -m pip install -r requirements-dev.txt
+```
+
+Run the checks locally:
+
+```bash
+python -m compileall src
+python -m ruff check src tests
+python -m pytest
+```
+
+The repository also includes a **GitHub Actions** workflow that runs these checks on `windows-latest` with **Python 3.12** for pushes and pull requests.
 
 ## Dependencies
 
-Python packages are listed in [`requirements.txt`](requirements.txt):
+Runtime packages are listed in [`requirements.txt`](requirements.txt):
 
 - `pywin32` — Windows API and Excel COM integration
 - `pywinauto` — desktop UI automation
@@ -124,7 +156,21 @@ Python packages are listed in [`requirements.txt`](requirements.txt):
 - `rapidfuzz` — fuzzy matching
 - `Unidecode` — text normalization
 
+Development tooling is listed separately in [`requirements-dev.txt`](requirements-dev.txt), including `pytest` and `ruff`.
+
 Microsoft Excel and the proprietary airline application are external system dependencies and therefore are not installable through `pip`.
+
+## Quality and maintainability
+
+The public repository now includes:
+
+- unit tests for text normalization, route parsing, flight-number parsing and airport resolution;
+- Windows CI on Python 3.12;
+- linting with `ruff`;
+- environment diagnostics for Python packages and Excel COM availability;
+- an isolated public demo mode;
+- separate runtime and development dependencies;
+- a sanitized architecture description.
 
 ## Intelligent automation layer
 
@@ -137,21 +183,18 @@ The project already contains decision-oriented components rather than a purely l
 - state-aware interaction with external Windows applications;
 - batch orchestration with recovery and cleanup boundaries.
 
-These are deterministic today because deterministic rules are safer for operational document generation.
+These components are deterministic today because deterministic rules are safer for operational document generation.
 
-## Planned improvements / roadmap
+## Roadmap
 
-The project is intentionally presented as an evolving automation system rather than a finished one-off script.
+### Next engineering improvements
 
-### Near-term engineering improvements
-
-- split desktop integration, route logic and PDF generation into smaller testable modules;
-- add structured logging instead of relying only on console output;
-- introduce automated tests for parsing, airport resolution and route classification;
-- add configuration validation and clearer startup diagnostics;
-- improve retry/time-out handling around Excel and Windows UI operations;
-- add a dry-run/demo mode that can demonstrate the workflow without proprietary systems;
-- add screenshots or a short sanitized demo of the operator interface.
+- split desktop integration, route logic and PDF generation into smaller modules;
+- introduce structured application logging with log rotation;
+- expand tests around route classification and failure scenarios;
+- improve retry and timeout handling around Excel and Windows UI operations;
+- add more startup checks for production configuration;
+- add sanitized screenshots or a short operator-interface demo.
 
 ### AI / intelligent automation roadmap
 
@@ -169,7 +212,7 @@ The rule-based workflow remains the source of truth; AI would sit above it as an
 
 **Automation & integration**
 
-- Python 3.11 recommended
+- Python 3.12
 - Tkinter
 - `pywinauto`
 - Win32 / `pywin32`
@@ -187,17 +230,32 @@ The rule-based workflow remains the source of truth; AI would sit above it as an
 - `pypdf`
 - atomic temporary builds and cleanup
 
+**Quality tooling**
+
+- `pytest`
+- `ruff`
+- GitHub Actions
+
 ## Repository structure
 
 ```text
 .
+├── .github/
+│   └── workflows/
+│       └── python-check.yml
 ├── src/
 │   ├── launcher.py       # desktop launcher and batch orchestration
-│   └── worker.py         # sanitized automation / Excel / PDF / route logic
+│   ├── worker.py         # sanitized automation / Excel / PDF / route logic
+│   ├── diagnostics.py    # environment and Excel COM checks
+│   └── demo.py           # synthetic public demo
+├── tests/
+│   └── test_worker.py
 ├── docs/
-│   └── architecture.md   # architecture and design decisions
+│   └── architecture.md
 ├── config.example.json
+├── pyproject.toml
 ├── requirements.txt
+├── requirements-dev.txt
 ├── .gitignore
 └── README.md
 ```
@@ -214,6 +272,7 @@ This is not a tutorial project. It demonstrates how I approach a real automation
 - branching business logic for different operational contexts;
 - PDF generation and package assembly;
 - temporary-file cleanup and repeatable batch execution;
+- testable public logic and automated CI checks;
 - designing a deterministic core that can later support an AI assistant;
 - sanitizing a production-oriented project for a public portfolio.
 
