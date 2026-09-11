@@ -2,7 +2,7 @@
 
 ### Intelligent automation for airline operations
 
-A production-oriented Windows automation project that coordinates a proprietary airline desktop system, Excel, route data and PDF generation to turn a repetitive operational process into a repeatable workflow.
+A production-oriented Windows automation project that coordinates a proprietary airline desktop system, Microsoft Excel, route data and PDF generation to turn a repetitive operational process into a repeatable workflow.
 
 > Built from a real workflow used while working with **Nordwind Airlines**. This repository is personal portfolio material and is **not an official Nordwind Airlines product or repository**. Proprietary templates, operational records, credentials, internal paths and company-specific mappings are intentionally excluded.
 
@@ -69,6 +69,63 @@ The project was built to reduce repetitive operator actions, make package genera
 
 More detail: [`docs/architecture.md`](docs/architecture.md)
 
+## Recommended environment
+
+This is a Windows-specific desktop automation project.
+
+- **OS:** Windows 10 or Windows 11, 64-bit
+- **Python:** **3.11.x recommended**
+- **Microsoft Excel:** desktop version required for COM automation
+- **Target airline desktop application:** required only for the real production workflow
+
+Python 3.11 is the recommended portfolio/runtime version because it is a conservative choice for Windows UI automation and COM-based integrations. Newer Python versions may also work, but should be validated against `pywin32` and `pywinauto` before production use.
+
+> `tkinter` is part of the standard Windows Python installation and is not installed from `requirements.txt`.
+
+## Installation
+
+Clone the repository and create an isolated virtual environment:
+
+```bash
+git clone <repository-url>
+cd flight-task-automation
+python -m venv .venv
+```
+
+Activate it on Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Install the Python dependencies:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Run the portfolio launcher:
+
+```bash
+python src/launcher.py
+```
+
+The public repository cannot reproduce the complete airline workflow because the production version depends on an authorized proprietary desktop environment. Outside that environment, the code is primarily intended for architecture and code review.
+
+## Dependencies
+
+Python packages are listed in [`requirements.txt`](requirements.txt):
+
+- `pywin32` — Windows API and Excel COM integration
+- `pywinauto` — desktop UI automation
+- `pypdf` — PDF assembly
+- `airportsdata` — airport reference data
+- `rapidfuzz` — fuzzy matching
+- `Unidecode` — text normalization
+
+Microsoft Excel and the proprietary airline application are external system dependencies and therefore are not installable through `pip`.
+
 ## Intelligent automation layer
 
 The project already contains decision-oriented components rather than a purely linear macro:
@@ -82,13 +139,27 @@ The project already contains decision-oriented components rather than a purely l
 
 These are deterministic today because deterministic rules are safer for operational document generation.
 
-### AI roadmap
+## Planned improvements / roadmap
 
-The natural next stage is to add AI only where it improves the workflow without replacing hard safety rules:
+The project is intentionally presented as an evolving automation system rather than a finished one-off script.
+
+### Near-term engineering improvements
+
+- split desktop integration, route logic and PDF generation into smaller testable modules;
+- add structured logging instead of relying only on console output;
+- introduce automated tests for parsing, airport resolution and route classification;
+- add configuration validation and clearer startup diagnostics;
+- improve retry/time-out handling around Excel and Windows UI operations;
+- add a dry-run/demo mode that can demonstrate the workflow without proprietary systems;
+- add screenshots or a short sanitized demo of the operator interface.
+
+### AI / intelligent automation roadmap
+
+AI is planned only where it provides value without replacing deterministic safety rules:
 
 - **LLM exception assistant** — explain why a package failed and suggest the next operator action;
-- **document completeness review** — analyze extracted document metadata and flag unusual/missing combinations;
-- **natural-language operations interface** — allow an operator to request a task in plain language while the system converts it into validated actions;
+- **document completeness review** — analyze extracted document metadata and flag unusual or missing combinations;
+- **natural-language operations interface** — allow an operator to request a task in plain language and convert it into validated actions;
 - **semantic route/entity resolution** — use embeddings or an LLM fallback only when deterministic airport matching is uncertain;
 - **structured incident summaries** — convert technical automation logs into concise operator-facing explanations.
 
@@ -98,11 +169,11 @@ The rule-based workflow remains the source of truth; AI would sit above it as an
 
 **Automation & integration**
 
-- Python 3
+- Python 3.11 recommended
+- Tkinter
 - `pywinauto`
 - Win32 / `pywin32`
 - Microsoft Excel COM automation
-- Tkinter
 
 **Data & decision logic**
 
@@ -160,22 +231,6 @@ The following are deliberately not published:
 - confidential operational rules that are not necessary to demonstrate the engineering approach.
 
 Where production-specific behavior was removed, the public code keeps representative integration points so the architecture remains understandable.
-
-## Running the portfolio snapshot
-
-The source is intended primarily for code review. On Windows, install dependencies with:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-Then launch:
-
-```bash
-python src/launcher.py
-```
-
-Without the authorized airline desktop environment, the worker stops at the integration boundary rather than attempting to reproduce proprietary behavior.
 
 ## Engineering principles
 
